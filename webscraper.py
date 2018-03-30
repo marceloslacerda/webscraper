@@ -2,12 +2,15 @@
 
 import json
 import sys
-import requests
+
 
 from io import StringIO
-from lxml.html import parse
 from os.path import join
 from urllib.parse import urljoin
+from typing import Dict, Any
+
+import requests
+from lxml.html import parse
 
 
 class PageError(ValueError):
@@ -15,7 +18,7 @@ class PageError(ValueError):
         self.pname = pname
 
 
-def process_page(meta_data, tree):
+def process_page(meta_data: Dict[str, Any], tree):
     actual_result = tree.xpath(meta_data['xpath_test_query'])
     expected_result = meta_data['xpath_test_result']
     if actual_result != expected_result:
@@ -26,14 +29,14 @@ def process_page(meta_data, tree):
             meta_data['next_page_expected'])
 
 
-def get_tree(url, name):
+def get_tree(url: str, name: str):
     text = requests.get(url, auth=('Thumb', 'Scraper')).text
     with open(join('debug', name), 'w') as f:
         f.write(text)
     return parse(StringIO(text))
 
 
-def scrape_text(text_input):
+def scrape_text(text_input: str):
     pages = json.loads(text_input)
     base = 'https://yolaw-tokeep-hiring-env.herokuapp.com/'
     next_url = '/'
